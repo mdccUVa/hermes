@@ -32,6 +32,10 @@ use std::fs;
     description_localized(
         "en-US",
         "Export the guild's teams and their member's identifiers as a plain text file."
+    ),
+    description_localized(
+        "es",
+        "Export the guild's teams and their member's identifiers as a plain text file."
     )
 )]
 pub async fn teamdump(

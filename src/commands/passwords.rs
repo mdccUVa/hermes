@@ -29,7 +29,8 @@ use std::collections::HashMap;
     default_member_permissions = "MANAGE_GUILD",
     guild_only,
     ephemeral,
-    description_localized("en-US", "Set the passwords for the guild's teams.")
+    description_localized("en-US", "Set the passwords for the guild's teams."),
+    description_localized("es", "Set the passwords for the guild's teams.")
 )]
 #[hermes::log_cmd]
 pub async fn passwords(

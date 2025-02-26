@@ -22,7 +22,8 @@ use crate::{Context, Error};
     default_member_permissions = "MANAGE_GUILD",
     guild_only,
     ephemeral,
-    description_localized("en-US", "Create a new leaderboard [CURRENTLY UNUSED].")
+    description_localized("en-US", "Create a new leaderboard [CURRENTLY UNUSED]."),
+    description_localized("es", "Create a new leaderboard [CURRENTLY UNUSED].")
 )]
 #[hermes::log_cmd]
 async fn leaderboard(ctx: Context<'_>) -> Result<(), Error> {

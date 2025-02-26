@@ -97,6 +97,10 @@ pub async fn r#move(
     description_localized(
         "en-US",
         "Add a student to a specific team. Creates the team if it does not exist."
+    ),
+    description_localized(
+        "es",
+        "Add a student to a specific team. Creates the team if it does not exist."
     )
 )]
 #[hermes::log_cmd]
@@ -145,7 +149,8 @@ pub async fn add(
 #[poise::command(
     slash_command,
     ephemeral,
-    description_localized("en-US", "Remove a student from their team.")
+    description_localized("en-US", "Remove a student from their team."),
+    description_localized("es", "Remove a student from their team.")
 )]
 #[hermes::log_cmd]
 pub async fn remove(
@@ -198,7 +203,8 @@ pub async fn remove(
 #[poise::command(
     slash_command,
     ephemeral,
-    description_localized("en-US", "Unconfirm a team, to make it modifiable.")
+    description_localized("en-US", "Unconfirm a team, to make it modifiable."),
+    description_localized("es", "Unconfirm a team, to make it modifiable.")
 )]
 #[hermes::log_cmd]
 pub async fn unconfirm(
@@ -249,7 +255,8 @@ pub async fn unconfirm(
 #[poise::command(
     slash_command,
     ephemeral,
-    description_localized("en-US", "Confirm a team, to make it ready to be used with Tablón.")
+    description_localized("en-US", "Confirm a team, to make it ready to be used with Tablón."),
+    description_localized("es", "Confirm a team, to make it ready to be used with Tablón.")
 )]
 #[hermes::log_cmd]
 pub async fn confirm(
@@ -300,7 +307,8 @@ pub async fn confirm(
 #[poise::command(
     slash_command,
     ephemeral,
-    description_localized("en-US", "Set the password of a team.")
+    description_localized("en-US", "Set the password of a team."),
+    description_localized("es", "Set the password of a team.")
 )]
 #[hermes::log_cmd]
 pub async fn password(
@@ -346,7 +354,8 @@ pub async fn password(
 #[poise::command(
     slash_command,
     ephemeral,
-    description_localized("en-US", "Rename a team.")
+    description_localized("en-US", "Rename a team."),
+    description_localized("es", "Rename a team.")
 )]
 #[hermes::log_cmd]
 pub async fn rename(

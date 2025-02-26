@@ -27,7 +27,8 @@ use crate::{Context, Error};
     description_localized(
         "en-US",
         "Get your history of previous Tablón request. (Maximum of 30.)"
-    )
+    ),
+    description_localized("es", "Get your history of previous Tablón request. (Maximum of 30.)")
 )]
 #[hermes::log_cmd]
 pub async fn history(ctx: Context<'_>) -> Result<(), Error> {

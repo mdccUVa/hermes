@@ -30,7 +30,8 @@ use std::process::Command;
     slash_command,
     guild_only,
     ephemeral,
-    description_localized("en-US", "Send a program to Tablón.")
+    description_localized("en-US", "Send a program to Tablón."),
+    description_localized("es", "Send a program to Tablón.")
 )]
 #[hermes::log_cmd]
 pub async fn request(
