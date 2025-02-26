@@ -36,9 +36,18 @@ pub async fn team(_: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-// TODO: This command replies multiple times. Edit the first reply adding more information instead
-// of sending multiple messages?
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized(
+        "en-US",
+        "Create and join a new team, and invite other students to join it."
+    ),
+    description_localized(
+        "es-ES",
+        "Create and join a new team, and invite other students to join it."
+    )
+)]
 #[hermes::log_cmd]
 pub async fn create(
     ctx: Context<'_>,
@@ -160,7 +169,12 @@ pub async fn create(
 }
 
 // MAYBE LATER: pretty-print with some custom embed or something?
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized("en-US", "Check your pending team invitations."),
+    description_localized("es-ES", "Check your pending team invitations.")
+)]
 #[hermes::log_cmd]
 pub async fn invitations(ctx: Context<'_>) -> Result<(), Error> {
     let gid = get_guild_id!(ctx);
@@ -214,7 +228,12 @@ pub async fn invitations(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized("en-US", "Join an existing team."),
+    description_localized("es-ES", "Join an existing team.")
+)]
 #[hermes::log_cmd]
 pub async fn join(
     ctx: Context<'_>,
@@ -297,7 +316,12 @@ pub async fn join(
     Ok(())
 }
 
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized("en-US", "Leave your current team."),
+    description_localized("es-ES", "Leave your current team.")
+)]
 #[hermes::log_cmd]
 pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     let gid = get_guild_id!(ctx);
@@ -355,7 +379,12 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized("en-US", "Rename your team (for aesthetic effects)."),
+    description_localized("es-ES", "Rename your team (for aesthetic effects).")
+)]
 #[hermes::log_cmd]
 pub async fn rename(
     ctx: Context<'_>,
@@ -406,7 +435,12 @@ pub async fn rename(
     Ok(())
 }
 
-#[poise::command(slash_command, ephemeral)]
+#[poise::command(
+    slash_command,
+    ephemeral,
+    description_localized("en-US", "Invite other students to join your current team."),
+    description_localized("es-ES", "Invite other students to join your current team.")
+)]
 #[hermes::log_cmd]
 pub async fn invite(
     ctx: Context<'_>,
