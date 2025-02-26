@@ -36,7 +36,8 @@ use std::process::Command;
 pub async fn request(
     ctx: Context<'_>,
     #[description = "File to send to Tablón."] file: serenity::Attachment,
-    #[description = "Tablón queue to send the request to."] queue: Option<String>,
+    #[description = "Additional arguments to send to Tablón (queue, threads, processes)."]
+    args: Option<String>,
 ) -> Result<(), Error> {
     let gid = get_guild_id!(ctx);
 
@@ -73,21 +74,20 @@ pub async fn request(
         return Ok(());
     };
 
-    // Get the correct queue:
-    let queue = if let Some(queue) = queue {
-        match queue.as_str() {
+    // Get the correct args:
+    let extra_args = if let Some(given_args) = args {
+        match given_args.as_str() {
             "l" => {
                 if let Some(last_command) = student.get_last_command(&gid) {
                     last_command.clone()
                 } else {
                     ctx.reply(
-                        "**Error:** Can't send request to the last queue, as there is no previous command.",
+                        "**Error:** Can't send request without all arguments, as there is no previous command.",
                     )
                     .await
                     .expect(
                         format!(
-                            "[request] Failed to send reply to student {}, with unspecified queue \
-                            and no previous command.",
+                            "[request] Failed to send reply to student {}, with no previous command.",
                             student.id()
                         )
                         .as_str(),
@@ -96,11 +96,11 @@ pub async fn request(
                     return Ok(());
                 }
             }
-            _ => queue,
+            _ => given_args,
         }
     } else {
         if let Some(preferred_queue) = student.get_preferred_queue(&gid) {
-            preferred_queue.clone()
+            format!("-q {}", preferred_queue)
         } else {
             ctx.reply(
                 "**Error:** Can't send request, as no queue was specified, and no preferred was set.",
@@ -117,6 +117,7 @@ pub async fn request(
             return Ok(());
         }
     };
+    let args = format!("-u {} -x {} {}", team, password, extra_args);
 
     // Save the file to disk:
     let Ok(mut out_program) = std::fs::File::create(format!("guilds/{}/{}", gid, file.filename))
@@ -154,21 +155,15 @@ pub async fn request(
     // client for a guild.
 
     // Equivalent CLI string:
-    let req_cmd_str = format!(
-        "guilds/{}/client.py -u {} -x {} -q {}",
-        gid, team, password, queue
-    );
+    let req_cmd_str = format!("guilds/{}/client -u {} -x {} {}", gid, team, password, args);
 
     // Construct the command, execute, and handle errors:
-    let Ok(req_output) = Command::new(format!("guilds/{}/client.py", gid))
-        .arg("-u")
-        .arg(team.clone())
-        .arg("-x")
-        .arg(password)
-        .arg("-q")
-        .arg(queue.clone())
-        .output()
-    else {
+    let mut cmd = Command::new(format!("guilds/{}/client", gid));
+    for opt in args.split_whitespace() {
+        cmd.arg(opt);
+    }
+
+    let Ok(req_output) = cmd.output() else {
         ctx.reply(
             "**Error:** Failed to send request to Tablón. Try again later, or contact an administrator.",
         )
@@ -212,7 +207,7 @@ pub async fn request(
         );
 
     // Save previous command:
-    student.set_last_command(gid, queue);
+    student.set_last_command(gid, extra_args);
 
     // Save request id in the student's history.
     let req_url = stdout_str
