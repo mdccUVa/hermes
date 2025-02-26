@@ -509,8 +509,7 @@ pub async fn column_separator(
     ephemeral,
     description_localized(
         "en-US",
-        "Update the configuration for the bot with the default configuration \
-        (config.json on the root directory of the bot), or a provided file."
+        "Update the configuration for the bot with the provided or a default file."
     )
 )]
 #[hermes::log_cmd]
