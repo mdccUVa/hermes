@@ -484,7 +484,7 @@ pub async fn invite(
         return Ok(());
     }
 
-    // Check the amount of invited students do not exceed the allowed time size:
+    // Check the amount of invited students do not exceed the allowed team size:
     let config = utils::load_config(&gid);
     // FIXME MINOR: This does not account for already existing invitations.
     let remaining_capacity = config.team_capacity as usize - team.members().len();
