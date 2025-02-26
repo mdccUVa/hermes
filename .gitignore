@@ -1,0 +1,11 @@
+/target
+
+# Vim sessions:
+*.vim
+
+# Discord bot token:
+.token
+
+# Bot file structure:
+users/
+guilds/
