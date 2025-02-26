@@ -90,5 +90,10 @@ pub async fn passwords(
     };
     info.update_passwords(pass_map);
 
+    // Reply to the user, as confirmation:
+    poise::say_reply(ctx, "Passwords for the teams updated successfully!")
+        .await
+        .expect("[passwords] Could not send confirmation message.");
+
     Ok(())
 }
