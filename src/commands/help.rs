@@ -22,7 +22,7 @@ use crate::{Context, Error};
     guild_only,
     ephemeral,
     description_localized("en-US", "Get help for using Hermes [CURRENTLY UNUSED]."),
-    description_localized("es", "Get help for using Hermes [CURRENTLY UNUSED].")
+    description_localized("es-ES", "Get help for using Hermes [CURRENTLY UNUSED].")
 )]
 #[hermes::log_cmd]
 async fn help(ctx: Context<'_>) -> Result<(), Error> {

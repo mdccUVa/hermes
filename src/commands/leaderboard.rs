@@ -23,7 +23,7 @@ use crate::{Context, Error};
     guild_only,
     ephemeral,
     description_localized("en-US", "Create a new leaderboard [CURRENTLY UNUSED]."),
-    description_localized("es", "Create a new leaderboard [CURRENTLY UNUSED].")
+    description_localized("es-ES", "Create a new leaderboard [CURRENTLY UNUSED].")
 )]
 #[hermes::log_cmd]
 async fn leaderboard(ctx: Context<'_>) -> Result<(), Error> {

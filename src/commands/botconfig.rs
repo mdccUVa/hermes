@@ -87,7 +87,7 @@ pub async fn botconfig(ctx: Context<'_>) -> Result<(), Error> {
     slash_command,
     ephemeral,
     description_localized("en-US", "Show the current configuration for the bot."),
-    description_localized("es", "Show the current configuration for the bot.")
+    description_localized("es-ES", "Show the current configuration for the bot.")
 )]
 #[hermes::log_cmd]
 pub async fn show(ctx: Context<'_>) -> Result<(), Error> {
@@ -122,7 +122,7 @@ pub async fn show(ctx: Context<'_>) -> Result<(), Error> {
     slash_command,
     ephemeral,
     description_localized("en-US", "Change the URL for Tablón's endpoint."),
-    description_localized("es", "Change the URL for Tablón's endpoint.")
+    description_localized("es-ES", "Change the URL for Tablón's endpoint.")
 )]
 #[hermes::log_cmd]
 pub async fn tablon_url(
@@ -160,7 +160,7 @@ pub async fn tablon_url(
     slash_command,
     ephemeral,
     description_localized("en-US", "Change the capacity for teams on this server."),
-    description_localized("es", "Change the capacity for teams on this server.")
+    description_localized("es-ES", "Change the capacity for teams on this server.")
 )]
 #[hermes::log_cmd]
 pub async fn team_capacity(
@@ -198,7 +198,7 @@ pub async fn team_capacity(
     slash_command,
     ephemeral,
     description_localized("en-US", "Change the prefix for the IDs of the teams of this guild."),
-    description_localized("es", "Change the prefix for the IDs of the teams of this guild.")
+    description_localized("es-ES", "Change the prefix for the IDs of the teams of this guild.")
 )]
 #[hermes::log_cmd]
 pub async fn team_prefix(
@@ -245,7 +245,7 @@ pub async fn team_prefix(
         "Change the guild's channel for usage of special admin-only bot functionalities."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Change the guild's channel for usage of special admin-only bot functionalities."
     )
 )]
@@ -285,7 +285,7 @@ pub async fn bot_channel(
     slash_command,
     ephemeral,
     description_localized("en-US", "Change the guild's channel for Tablón's leaderboard."),
-    description_localized("es", "Change the guild's channel for Tablón's leaderboard.")
+    description_localized("es-ES", "Change the guild's channel for Tablón's leaderboard.")
 )]
 #[hermes::log_cmd]
 pub async fn lb_channel(
@@ -327,7 +327,7 @@ pub async fn lb_channel(
         "Change whether to notify leaders of leaderboard position changes."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Change whether to notify leaders of leaderboard position changes."
     )
 )]
@@ -371,7 +371,7 @@ pub async fn notify_leaders(
         "Change the number of teams to count as \"leaders\" for position update notifications."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Change the number of teams to count as \"leaders\" for position update notifications."
     )
 )]
@@ -410,7 +410,7 @@ pub async fn leader_count(
     slash_command,
     ephemeral,
     description_localized("en-US", "Change whether to notify the leaderboard changes publicly."),
-    description_localized("es", "Change whether to notify the leaderboard changes publicly.")
+    description_localized("es-ES", "Change whether to notify the leaderboard changes publicly.")
 )]
 #[hermes::log_cmd]
 pub async fn public_notify(
@@ -450,7 +450,7 @@ pub async fn public_notify(
         "Change the channel for bot news (e.g. public position update notifications)."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Change the channel for bot news (e.g. public position update notifications)."
     )
 )]
@@ -493,7 +493,10 @@ pub async fn bot_news_channel(
         "en-US",
         "Change the separator for multi-field columns in leaderboards."
     ),
-    description_localized("es", "Change the separator for multi-field columns in leaderboards.")
+    description_localized(
+        "es-ES",
+        "Change the separator for multi-field columns in leaderboards."
+    )
 )]
 #[hermes::log_cmd]
 pub async fn column_separator(
@@ -535,7 +538,7 @@ pub async fn column_separator(
         "Update the configuration for the bot with the provided or a default file."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Update the configuration for the bot with the provided or a default file."
     )
 )]

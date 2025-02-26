@@ -30,7 +30,7 @@ use std::collections::HashMap;
     guild_only,
     ephemeral,
     description_localized("en-US", "Set the passwords for the guild's teams."),
-    description_localized("es", "Set the passwords for the guild's teams.")
+    description_localized("es-ES", "Set the passwords for the guild's teams.")
 )]
 #[hermes::log_cmd]
 pub async fn passwords(

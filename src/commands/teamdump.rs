@@ -34,7 +34,7 @@ use std::fs;
         "Export the guild's teams and their member's identifiers as a plain text file."
     ),
     description_localized(
-        "es",
+        "es-ES",
         "Export the guild's teams and their member's identifiers as a plain text file."
     )
 )]

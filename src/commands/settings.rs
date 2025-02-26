@@ -31,7 +31,7 @@ pub async fn settings(ctx: Context<'_>) -> Result<(), Error> {
     slash_command,
     ephemeral,
     description_localized("en-US", "Print your current settings."),
-    description_localized("es", "Print your current settings.")
+    description_localized("es-ES", "Print your current settings.")
 )]
 #[hermes::log_cmd]
 pub async fn get(ctx: Context<'_>) -> Result<(), Error> {
@@ -89,7 +89,7 @@ pub async fn get(ctx: Context<'_>) -> Result<(), Error> {
     slash_command,
     ephemeral,
     description_localized("en-US", "Change your default queue for requests."),
-    description_localized("es", "Change your default queue for requests.")
+    description_localized("es-ES", "Change your default queue for requests.")
 )]
 #[hermes::log_cmd]
 pub async fn set_queue(
