@@ -116,7 +116,6 @@ pub fn load_config(guild_id: &GuildId) -> BotConfig {
 pub fn init_filesystem() {
     fs::create_dir_all("guilds").expect("Could not create guilds directory.");
     fs::create_dir_all("users").expect("Could not create users directory.");
-    fs::create_dir_all("teams").expect("Could not create teams directory.");
     if !fs::exists("guilds/guildMap.json")
         .expect("Could not check existence of guilds/guildMap.json")
     {
