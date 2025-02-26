@@ -36,8 +36,8 @@ use std::process::Command;
 pub async fn request(
     ctx: Context<'_>,
     #[description = "File to send to Tablón."] file: serenity::Attachment,
-    #[description = "Additional arguments to send to Tablón (queue, threads, processes)."]
-    args: Option<String>,
+    #[description = "Additional arguments to send to Tablón (queue, threads, processes, and program args)."]
+    extra_args: Option<String>,
 ) -> Result<(), Error> {
     let gid = get_guild_id!(ctx);
 
@@ -75,7 +75,7 @@ pub async fn request(
     };
 
     // Get the correct args:
-    let extra_args = if let Some(given_args) = args {
+    let extra_args = if let Some(given_args) = extra_args {
         match given_args.as_str() {
             "l" => {
                 if let Some(last_command) = student.get_last_command(&gid) {
@@ -153,19 +153,21 @@ pub async fn request(
 
     // FIXME: The client file's location is guild-dependent. Develop a way to conveniently set the
     // client for a guild.
+    // TODO: Add Hermes identification to files, for clout 😎
+    // TODO: Consider adding a request embed.
 
     // Equivalent CLI string:
     let req_cmd_str = format!(
-        "guilds/{}/client {} guilds/{}/{}",
-        gid, args, gid, file.filename
+        "guilds/{}/client guilds/{}/{} {}",
+        gid, gid, file.filename, args
     );
 
     // Construct the command, execute, and handle errors:
     let mut cmd = Command::new(format!("guilds/{}/client", gid));
+    cmd.arg(format!("guilds/{}/{}", gid, file.filename));
     for opt in args.split_whitespace() {
         cmd.arg(opt);
     }
-    cmd.arg(format!("guilds/{}/{}", gid, file.filename));
 
     let req_output = cmd.output();
 
