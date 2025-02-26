@@ -73,7 +73,7 @@ impl Team {
 
         let res = Self {
             id: id.clone(),
-            pass: pass,
+            pass,
             guild: guild_id,
             name: id,
             members: HashSet::with_capacity(2),
@@ -101,7 +101,7 @@ impl Team {
             return;
         }
 
-        student.add_team(self.guild.clone(), self.id.clone(), None);
+        student.add_team(self.guild.clone(), self.id.clone(), self.pass.clone());
 
         self.save();
     }
