@@ -155,15 +155,26 @@ pub async fn request(
     // client for a guild.
 
     // Equivalent CLI string:
-    let req_cmd_str = format!("guilds/{}/client -u {} -x {} {}", gid, team, password, args);
+    let req_cmd_str = format!(
+        "guilds/{}/client {} guilds/{}/{}",
+        gid, args, gid, file.filename
+    );
 
     // Construct the command, execute, and handle errors:
     let mut cmd = Command::new(format!("guilds/{}/client", gid));
     for opt in args.split_whitespace() {
         cmd.arg(opt);
     }
+    cmd.arg(format!("guilds/{}/{}", gid, file.filename));
 
-    let Ok(req_output) = cmd.output() else {
+    let req_output = cmd.output();
+
+    // Remove the file sent from disk:
+    std::fs::remove_file(format!("guilds/{}/{}", gid, file.filename))
+        .expect(format!("Could not remove file from disk: {}", file.filename).as_str());
+
+    // Process the client's output:
+    let Ok(req_output) = req_output else {
         ctx.reply(
             "**Error:** Failed to send request to Tablón. Try again later, or contact an administrator.",
         )
@@ -178,8 +189,8 @@ pub async fn request(
         );
 
         eprintln!(
-            "[request] Failed to send request, triggered by student {} ({}).\
-            Request: `{}`",
+            "[request] Failed to send request, triggered by student {} ({}). \
+            Request: {}",
             student.id(),
             student.name(),
             req_cmd_str
@@ -199,7 +210,7 @@ pub async fn request(
         .await
         .expect(
             format!(
-            "[request] Failed to send reply to student {}, with successful client response for {}.",
+            "[request] Failed to send reply to student {}, with successful client response for {}",
             student.id(),
             req_cmd_str,
         )
@@ -215,7 +226,7 @@ pub async fn request(
         .find(|line| line.starts_with("http://"))
         .expect(
             format!(
-                "[request] Failed to find the request URL in the output of command {}.\nOutput: {}",
+                "[request] Failed to find the request URL in the output of command {}\nOutput: {}",
                 req_cmd_str, stdout_str,
             )
             .as_str(),
