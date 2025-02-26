@@ -166,6 +166,7 @@ impl Team {
             // Note down a hole in the guild's team identifiers:
             let mut info = get_existing_guild_team_info!(&self.guild);
             info.holes.push(self.id.clone());
+            info.save();
         }
     }
 
