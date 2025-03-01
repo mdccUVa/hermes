@@ -152,8 +152,7 @@ pub async fn request(
         .write_all(&file_bytes)
         .expect(format!("Could not save program to disk: {}", file.filename).as_str());
 
-    // FIXME: The client file's location is guild-dependent. Develop a way to conveniently set the
-    // client for a guild.
+    // TODO: Develop a way to conveniently set the client for a guild using Hermes.
     // TODO: Add Hermes identification to files, for clout 😎
     // TODO: Consider adding a request embed.
 
@@ -161,6 +160,32 @@ pub async fn request(
     let req_cmd_str = format!(
         "guilds/{}/client guilds/{}/{} {}",
         gid, gid, file.filename, args
+    );
+
+    // Log request:
+    let mut req_log = std::fs::OpenOptions::new()
+        .append(true)
+        .open(format!("guilds/{}/requests.log", gid))
+        .expect(
+            format!(
+                "[requests] Failed to open the guild's log file for guild {}.",
+                gid
+            )
+            .as_str(),
+        );
+    write!(
+        req_log,
+        "Request received from {} ({}): {}\n",
+        student.name(),
+        student.id(),
+        req_cmd_str
+    )
+    .expect(
+        format!(
+            "[requests] Failed to write to the guild's log file for guild {}.",
+            gid
+        )
+        .as_str(),
     );
 
     // Construct the command, execute, and handle errors:

@@ -87,9 +87,15 @@ async fn ready(
 
                 // FIXME: Namemap redundant? Why per guild?
                 // Create the guild's directory if it doesn't exist:
-                if !fs::metadata(format!("guilds/{}", gid)).is_ok() {
+                if fs::metadata(format!("guilds/{}", gid)).is_err() {
                     fs::create_dir(format!("guilds/{}", gid))
                         .expect(format!("Could not create guilds/{} directory.", gid).as_str());
+                }
+
+                // Create the guild's request log, if it doesn't exist:
+                if fs::metadata(format!("guilds/{}/requests.log", gid)).is_err() {
+                    fs::write(format!("guilds/{}/requests.log", gid).as_str(), "")
+                        .expect(format!("Could not create guilds/{}/requests.log.", gid).as_str());
                 }
 
                 // Check if the configuration file exists, and create it if it doesn't:
