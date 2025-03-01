@@ -224,40 +224,59 @@ pub async fn request(
     student.set_last_command(gid, extra_args);
 
     // Save request id in the student's history.
-    let req_url = stdout_str
-        .lines()
-        .find(|line| line.starts_with("http://"))
+    let req_url = stdout_str.lines().find(|line| line.starts_with("http://"));
+    let req_regex = Regex::new(r"(\d+)$").expect("Failed to compile regex for request id.");
+    if let Some(req_url) = req_url {
+        let rid = req_regex
+            .captures(req_url)
+            .expect(
+                format!(
+                    "[request] Failed to find the request ID in the URL {}.",
+                    req_url,
+                )
+                .as_str(),
+            )
+            .get(0)
+            .expect(
+                format!(
+                    "[request] Failed to find the request ID in the URL {}.",
+                    req_url,
+                )
+                .as_str(),
+            )
+            .as_str();
+        let rid = rid
+            .parse::<u16>()
+            .expect(format!("[request] Failed to parse the request ID {}.", rid).as_str());
+
+        student.add_request(&gid, rid);
+    } else {
+        let root_url = utils::load_config(&gid).tablon_url;
+
+        ctx.reply(
+            format!(
+                "Ooops! I couldn't find the URL generated for your request. That's weird!\n\
+                However, it seems that the request itself was sent successfully.\n\
+                Please, check manually: <{}>", root_url
+            )
+        )
+        .await
         .expect(
             format!(
-                "[request] Failed to find the request URL in the output of command {}\nOutput: {}",
-                req_cmd_str, stdout_str,
+                "[request] Failed to send reply to student {}, with failed request ID extraction for {}.",
+                student.id(),
+                req_cmd_str,
             )
             .as_str(),
         );
-    let req_regex = Regex::new(r"(\d+)$").expect("Failed to compile regex for request id.");
-    let rid = req_regex
-        .captures(req_url)
-        .expect(
-            format!(
-                "[request] Failed to find the request ID in the URL {}.",
-                req_url,
-            )
-            .as_str(),
-        )
-        .get(0)
-        .expect(
-            format!(
-                "[request] Failed to find the request ID in the URL {}.",
-                req_url,
-            )
-            .as_str(),
-        )
-        .as_str();
-    let rid = rid
-        .parse::<u16>()
-        .expect(format!("[request] Failed to parse the request ID {}.", rid).as_str());
 
-    student.add_request(&gid, rid);
+        eprintln!(
+            "[request] Failed to find the request ID in the output of command {}\nOutput: {}",
+            req_cmd_str, stdout_str,
+        );
+
+        return Ok(());
+    }
 
     Ok(())
 }
