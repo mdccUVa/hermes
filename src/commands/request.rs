@@ -58,9 +58,9 @@ pub async fn request(
 
         return Ok(());
     };
-    // Retrieve the team of the credentials:
+    // Retrieve the team sending the request (from the credentials):
     let team = credentials.team();
-    // Retrieve the password of the credentials, and handle the possible error:
+    // Retrieve the password of the team (from the credentials), and handle the possible error:
     let Some(password) = credentials.password() else {
         ctx.reply("**Error:** You cannot send requests to Tablón, as your team has not been registered yet.")
             .await
@@ -75,8 +75,8 @@ pub async fn request(
         return Ok(());
     };
 
-    // Get the correct args:
-    let extra_args = if let Some(given_args) = extra_args {
+    // Check if last command has to be used:
+    let mut extra_args = if let Some(given_args) = extra_args {
         match given_args.as_str() {
             "l" => {
                 if let Some(last_command) = student.get_last_command(&gid) {
@@ -88,7 +88,7 @@ pub async fn request(
                     .await
                     .expect(
                         format!(
-                            "[request] Failed to send reply to student {}, with no previous command.",
+                            "[request] Failed to send reply to student {} with no previous command.",
                             student.id()
                         )
                         .as_str(),
@@ -100,8 +100,13 @@ pub async fn request(
             _ => given_args,
         }
     } else {
+        "".to_string()
+    };
+
+    // Add the queue to send the request to:
+    if !extra_args.contains("-q") {
         if let Some(preferred_queue) = student.get_preferred_queue(&gid) {
-            format!("-q {}", preferred_queue)
+            extra_args = format!("-q {} {}", preferred_queue, extra_args);
         } else {
             ctx.reply(
                 "**Error:** Can't send request, as no queue was specified, and no preferred was set.",
@@ -117,7 +122,9 @@ pub async fn request(
 
             return Ok(());
         }
-    };
+    }
+
+    // Arguments to append to the request:
     let args = format!("-u {} -x {} {}", team, password, extra_args);
 
     // Save the file to disk:
@@ -129,7 +136,7 @@ pub async fn request(
         .await
         .expect(
             format!(
-                "[request] Failed to send reply to student {}, with failed file creation.",
+                "[request] Failed to send reply to student {} with failed file creation.",
                 student.id(),
             )
             .as_str(),
@@ -209,7 +216,7 @@ pub async fn request(
         .await
         .expect(
             format!(
-                "[request] Failed to send reply to student {}, with failed client response for {}.",
+                "[request] Failed to send reply to student {} with failed client response for {}.",
                 student.id(),
                 req_cmd_str,
             )
@@ -234,73 +241,91 @@ pub async fn request(
     )
         .as_str(),
     );
-    ctx.reply(format!("Correctly sent the request:\n```{}```", stdout_str))
-        .await
-        .expect(
-            format!(
-            "[request] Failed to send reply to student {}, with successful client response for {}",
-            student.id(),
-            req_cmd_str,
-        )
-            .as_str(),
-        );
 
-    // Save previous command:
-    student.set_last_command(gid, extra_args);
-
-    // Save request id in the student's history.
-    let req_url = stdout_str.lines().find(|line| line.starts_with("http"));
-    let req_regex = Regex::new(r"(\d+)$").expect("Failed to compile regex for request id.");
-    if let Some(req_url) = req_url {
-        let rid = req_regex
-            .captures(req_url)
+    // Check if there was an error, and continue processing if not:
+    if !stdout_str.contains("Error - ") {
+        ctx.reply(format!("Correctly sent the request:\n```{}```", stdout_str))
+            .await
             .expect(
                 format!(
-                    "[request] Failed to find the request ID in the URL {}.",
-                    req_url,
+                    "[request] Failed to send reply to student {} with successful client response for {}",
+                    student.id(),
+                    req_cmd_str,
                 )
                 .as_str(),
+            );
+
+        // Save previous command:
+        student.set_last_command(gid, extra_args);
+
+        // Save request id in the student's history.
+        let req_url = stdout_str.lines().find(|line| line.starts_with("http"));
+        let req_regex = Regex::new(r"(\d+)$").expect("Failed to compile regex for request id.");
+        if let Some(req_url) = req_url {
+            let rid = req_regex
+                .captures(req_url)
+                .expect(
+                    format!(
+                        "[request] Failed to find the request ID in the URL {}.",
+                        req_url,
+                    )
+                    .as_str(),
+                )
+                .get(0)
+                .expect(
+                    format!(
+                        "[request] Failed to find the request ID in the URL {}.",
+                        req_url,
+                    )
+                    .as_str(),
+                )
+                .as_str();
+            let rid = rid
+                .parse::<u16>()
+                .expect(format!("[request] Failed to parse the request ID {}.", rid).as_str());
+
+            student.add_request(&gid, rid);
+        } else {
+            let root_url = utils::load_config(&gid).tablon_url;
+
+            ctx.reply(
+                format!(
+                    "Ooops! I couldn't find the URL generated for your request. That's weird!\n\
+                    However, it seems that the request itself was sent successfully.\n\
+                    Please, check manually: <{}>", root_url
+                )
             )
-            .get(0)
+            .await
             .expect(
                 format!(
-                    "[request] Failed to find the request ID in the URL {}.",
-                    req_url,
+                    "[request] Failed to send reply to student {} with failed request ID extraction for {}.",
+                    student.id(),
+                    req_cmd_str,
                 )
                 .as_str(),
-            )
-            .as_str();
-        let rid = rid
-            .parse::<u16>()
-            .expect(format!("[request] Failed to parse the request ID {}.", rid).as_str());
+            );
 
-        student.add_request(&gid, rid);
+            eprintln!(
+                "[request] Failed to find the request ID in the output of command {}\nOutput: {}",
+                req_cmd_str, stdout_str,
+            );
+
+            return Ok(());
+        }
     } else {
-        let root_url = utils::load_config(&gid).tablon_url;
-
-        ctx.reply(
-            format!(
-                "Ooops! I couldn't find the URL generated for your request. That's weird!\n\
-                However, it seems that the request itself was sent successfully.\n\
-                Please, check manually: <{}>", root_url
-            )
-        )
+        ctx.reply(format!(
+            "**Error:** Incorrect request:\n```{}```",
+            stdout_str
+        ))
         .await
         .expect(
             format!(
-                "[request] Failed to send reply to student {}, with failed request ID extraction for {}.",
+                "[request] Failed to send reply to student {} with errored client response for {}",
                 student.id(),
                 req_cmd_str,
             )
             .as_str(),
         );
-
-        eprintln!(
-            "[request] Failed to find the request ID in the output of command {}\nOutput: {}",
-            req_cmd_str, stdout_str,
-        );
-
-        return Ok(());
     }
 
     Ok(())
