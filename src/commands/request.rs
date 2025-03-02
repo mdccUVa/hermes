@@ -249,7 +249,7 @@ pub async fn request(
     student.set_last_command(gid, extra_args);
 
     // Save request id in the student's history.
-    let req_url = stdout_str.lines().find(|line| line.starts_with("http://"));
+    let req_url = stdout_str.lines().find(|line| line.starts_with("http"));
     let req_regex = Regex::new(r"(\d+)$").expect("Failed to compile regex for request id.");
     if let Some(req_url) = req_url {
         let rid = req_regex
