@@ -114,7 +114,7 @@ async fn ready(
                     } else {
                         // Use the following default configuration as last resort:
                         let config = BotConfig {
-                            tablon_url: String::from("https://frontendv.infor.uva.es/"),
+                            tablon_url: String::from("https://frontendv.infor.uva.es"),
                             team_capacity: 2,
                             team_prefix: String::from("g"),
                             bot_channel: String::from("bot-commands"),

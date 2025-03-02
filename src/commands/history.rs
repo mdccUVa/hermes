@@ -51,7 +51,7 @@ pub async fn history(ctx: Context<'_>) -> Result<(), Error> {
     );
 
     // Get at most last 30 requests:
-    let requests = hist.iter().rev().take(30).rev().collect::<Vec<_>>();
+    let requests = hist.iter().rev().take(30).collect::<Vec<_>>();
     let mut reply = "**Last requests sent to Tablón:**\n".to_string();
 
     for req in requests {
