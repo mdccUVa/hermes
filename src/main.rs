@@ -56,7 +56,7 @@ async fn ready(
     _data: &Data,
 ) -> Result<(), Error> {
     match event {
-        // TODO: Event for guild create (when the bot joins a new server)
+        // Ready (bot is started):
         serenity::FullEvent::Ready { data_about_bot, .. } => {
             match data_about_bot.user.discriminator {
                 Some(discriminator) => {
@@ -85,7 +85,6 @@ async fn ready(
                 );
                 println!("Hermes entered the guild {} ({}).", gname, gid);
 
-                // FIXME: Namemap redundant? Why per guild?
                 // Create the guild's directory if it doesn't exist:
                 if fs::metadata(format!("guilds/{}", gid)).is_err() {
                     fs::create_dir(format!("guilds/{}", gid))
@@ -129,7 +128,7 @@ async fn ready(
                     }
                 }
 
-                // Create the guild's name map, if it doesn't exist:
+                // Create the guild's team name map, if it doesn't exist:
                 if !fs::metadata(format!("guilds/{}/nameMap.json", gid)).is_ok() {
                     let json = serde_json::to_string(&HashMap::<String, String>::new()).expect(
                         format!(
@@ -149,13 +148,6 @@ async fn ready(
                     );
                 }
 
-                // Rename to "Hermes": (FIXME: check permissions)
-                /*
-                gid.edit_nickname(&ctx.http, Some("Hermes"))
-                    .await
-                    .expect("Could not change the bot's nickname.");
-                */
-
                 // New server found? Add to database:
                 let std_name = utils::sanitize_name(&gname);
                 if !guild_map.contains_key(&std_name) {
@@ -163,9 +155,7 @@ async fn ready(
                     utils::update_guildmap_persistence(&guild_map);
                 }
 
-                /*
-                 * Create or update the student's objects on the database:
-                 */
+                // Create or update the student's objects on the database:
                 for member in gid.members(&ctx.http, None, None).await.expect(
                     format!("Could not retrieve the members of the guild {}.", gid).as_str(),
                 ) {
@@ -191,6 +181,116 @@ async fn ready(
                     // system.
                     // TODO: this should probably account for user name changes, too.
                 }
+            }
+        }
+        // Guild create (the bot joins a new server):
+        serenity::FullEvent::GuildCreate { guild, is_new } => {
+            // Only process new guilds:
+            if *is_new != Some(true) {
+                return Ok(());
+            }
+            println!("Hermes entered the guild {} ({}).", guild.name, guild.id);
+
+            // Basically, process the guild as they are in the Ready event...
+
+            // Load "global" data structures:
+            let mut guild_map = utils::load_guildmap();
+            let mut user_map = utils::load_usermap();
+
+            let gid = guild.id;
+            let gname = gid.name(&ctx.cache).expect(
+                format!("Unable to retrieve the name of the guild with id {}.", gid).as_str(),
+            );
+            println!("Hermes entered the guild {} ({}).", gname, gid);
+
+            // Create the guild's directory:
+            fs::create_dir(format!("guilds/{}", gid))
+                .expect(format!("Could not create guilds/{} directory.", gid).as_str());
+
+            // Create the guild's request log:
+            fs::write(format!("guilds/{}/requests.log", gid).as_str(), "")
+                .expect(format!("Could not create guilds/{}/requests.log.", gid).as_str());
+
+            // Check if the configuration file exists, and create it if it doesn't:
+            if fs::metadata(format!("guilds/{}/config.json", gid)).is_err() {
+                // Use custom default configuration, if found:
+                if fs::metadata("config.json").is_ok() {
+                    let config: BotConfig = serde_json::from_str(
+                        fs::read_to_string("config.json")
+                            .expect("Could not read the default configuration file.")
+                            .as_str(),
+                    )
+                    .expect(
+                        "Could not parse the default configuration file as a BotConfig object.",
+                    );
+                    utils::update_config_persistence(&config, &gid);
+                } else {
+                    // Use the following default configuration as last resort:
+                    let config = BotConfig {
+                        tablon_url: String::from("https://frontendv.infor.uva.es"),
+                        team_capacity: 2,
+                        team_prefix: String::from("g"),
+                        bot_channel: String::from("bot-commands"),
+                        lb_channel: String::from("leaderboards"),
+                        notify_leaders: true,
+                        leader_count: 5,
+                        public_notify: true,
+                        bot_news_channel: String::from("bot-news"),
+                        column_separator: String::from(" | "),
+                    };
+                    utils::update_config_persistence(&config, &gid);
+                }
+            }
+
+            // Create the guild's team name map, if it doesn't exist:
+            if !fs::metadata(format!("guilds/{}/nameMap.json", gid)).is_ok() {
+                let json = serde_json::to_string(&HashMap::<String, String>::new()).expect(
+                    format!(
+                        "Could not serialize an initial empty name map into JSON for guild {}.",
+                        gid
+                    )
+                    .as_str(),
+                );
+                fs::write(format!("guilds/{}/nameMap.json", gid).as_str(), json)
+                    .expect(format!("Could not write guilds/{}/nameMap.json.", gid).as_str());
+            }
+
+            // Create the guild's team directory, if it doesn't exist:
+            fs::create_dir(format!("guilds/{}/teams", gid))
+                .expect(format!("Could not create guilds/{}/teams directory.", gid).as_str());
+
+            // Add guild to database:
+            let std_name = utils::sanitize_name(&gname);
+            guild_map.insert(std_name, gid);
+            utils::update_guildmap_persistence(&guild_map);
+
+            // Create or update the student's objects on the database:
+            for member in gid
+                .members(&ctx.http, None, None)
+                .await
+                .expect(format!("Could not retrieve the members of the guild {}.", gid).as_str())
+            {
+                // Ignore bots:
+                if member.user.bot {
+                    continue;
+                }
+
+                let uid = member.user.id;
+                let name = member.user.name;
+
+                // Create new students:
+                if student::get_student(&uid).is_none() {
+                    let _student = student::Student::new(uid, name.clone());
+                }
+
+                // Add to the user map (if not present):
+                if user_map.insert(name.clone(), uid).is_none() {
+                    utils::update_usermap_persistence(&user_map);
+                }
+
+                // TODO: add students that joined the server after the bot was added to the
+                // system.
+                // TODO: this should probably account for user name changes, too.
             }
         }
 
