@@ -41,14 +41,18 @@ pub async fn history(ctx: Context<'_>) -> Result<(), Error> {
 
     // Get the request history for the student triggering the commnad:
     let student = utils::get_triggering_student!(ctx);
-    let hist = student.request_history().get(&gid).expect(
-        format!(
-            "[request] Couldn't find request history for student {} in guild {}.",
-            student.id(),
-            gid
-        )
-        .as_str(),
-    );
+    let Some(hist) = student.request_history().get(&gid) else {
+        ctx.reply("You don't have any request sent through Hermes in this server. Try using the `/request` command first!").await.expect(
+            format!(
+                "[history] Couldn't send message to user with no history {} ({})",
+                student.name(),
+                student.id()
+            )
+            .as_str(),
+        );
+
+        return Ok(());
+    };
 
     // Get at most last 30 requests:
     let requests = hist.iter().rev().take(30).collect::<Vec<_>>();
