@@ -22,7 +22,7 @@ use serenity::all::UserId;
 /**
  * Data structure defining a team request.
  *
- * Tea, requests are sent by students to other students in the same server, to invite them to join
+ * Team requests are sent by students to other students in the same server, to invite them to join
  * an already existing team.
  */
 #[cfg_attr(debug_assertions, derive(Debug))]
