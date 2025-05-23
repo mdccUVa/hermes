@@ -1,6 +1,6 @@
 /*
  *  Hermes - Discord bot for integrating UVa's Tablón into Discord servers.
- *  Copyright (C) 2025  Manuel de Castro
+ *  Copyright (C) 2025  Manuel de Castro <manuel@infor.uva.es>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ pub mod botconfig;
 pub mod help;
 pub mod history;
 pub mod leaderboard;
+pub mod license;
 pub mod passwords;
 pub mod request;
 pub mod settings;

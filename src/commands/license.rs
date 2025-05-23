@@ -21,14 +21,20 @@ use crate::{Context, Error};
     slash_command,
     guild_only,
     ephemeral,
-    description_localized("en-US", "Get help for using Hermes [CURRENTLY UNUSED]."),
-    description_localized("es-ES", "Get help for using Hermes [CURRENTLY UNUSED].")
+    description_localized("en-US", "Show this software's license information.."),
+    description_localized("es-ES", "Recibir información de la licencia del software.")
 )]
 #[hermes::log_cmd]
-async fn help(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.reply("This command is still WIP, sorry! Please check back later.")
-        .await
-        .expect("[help] Failed to send reply.");
+pub async fn license(ctx: Context<'_>) -> Result<(), Error> {
+    ctx.reply(
+        "Hermes  Copyright (C) 2025  Manuel de Castro <manuel@infor.uva.es>\n\
+        This program comes with ABSOLUTELY NO WARRANTY.\n\
+        This is free software, and you are welcome to redistribute it under certain conditions.\n\
+        This program is licensed under the GNU General Public License v3.0.\
+        For more information, see <https://www.gnu.org/licenses/>.",
+    )
+    .await
+    .expect("[license] Failed to send reply.");
 
     Ok(())
 }

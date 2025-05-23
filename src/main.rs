@@ -1,6 +1,6 @@
 /*
  *  Hermes - Discord bot for integrating UVa's Tablón into Discord servers.
- *  Copyright (C) 2025  Manuel de Castro
+ *  Copyright (C) 2025  Manuel de Castro <manuel@infor.uva.es>
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -313,6 +313,7 @@ async fn main() {
             commands: vec![
                 commands::botconfig::botconfig(),
                 commands::history::history(),
+                commands::license::license(),
                 commands::passwords::passwords(),
                 commands::request::request(),
                 commands::settings::settings(),
