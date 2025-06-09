@@ -15,12 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::student;
-use crate::team;
-use crate::team::Team;
-use crate::utils;
-use crate::utils::{get_guild_id, get_triggering_student};
-use crate::{Context, Error};
+use crate::{
+    student, team,
+    team::Team,
+    utils,
+    utils::{get_guild_id, get_triggering_student},
+    Context, Error,
+};
 use poise::serenity_prelude::User;
 
 // TODO: Do something with default member permissions for student commands.

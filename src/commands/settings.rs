@@ -15,9 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::student;
-use crate::utils;
-use crate::{Context, Error};
+use crate::{student, utils, Context, Error};
 use std::fmt::Write;
 
 #[poise::command(slash_command, subcommands("get", "set_queue"), guild_only, ephemeral)]

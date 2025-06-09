@@ -25,14 +25,11 @@ use crate::utils::BotConfig;
 use getset::Getters;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::{env, fs};
+use std::{collections::HashMap, env, fs};
 
 /* General data structures: */
 
-/**
- * Tablón credentials data structure.
- */
+/// Tablón credentials data structure.
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, Serialize, Deserialize, Getters)]
 pub struct Credentials {

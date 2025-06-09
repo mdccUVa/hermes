@@ -15,12 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::student;
-use crate::team;
-use crate::team::GuildTeamInfo;
-use crate::utils;
-use crate::utils::get_guild_id;
-use crate::{Context, Error};
+use crate::{student, team, team::GuildTeamInfo, utils, utils::get_guild_id, Context, Error};
 use poise::serenity_prelude::User;
 
 #[poise::command(

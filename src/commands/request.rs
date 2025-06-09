@@ -17,14 +17,10 @@
  */
 extern crate reqwest;
 
-use crate::student;
-use crate::utils;
-use crate::utils::get_guild_id;
-use crate::{Context, Error};
+use crate::{student, utils, utils::get_guild_id, Context, Error};
 use poise::serenity_prelude as serenity;
 use regex::Regex;
-use std::io::Write;
-use std::process::Command;
+use std::{io::Write, process::Command};
 
 #[poise::command(
     slash_command,

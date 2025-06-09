@@ -15,27 +15,24 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::student;
-use crate::student::Student;
-use crate::team;
-use crate::utils;
+use crate::{student, student::Student, team, utils};
 use getset::Getters;
 use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, UserId};
-use std::collections::{HashMap, HashSet};
-use std::fs;
+use std::{
+    collections::{HashMap, HashSet},
+    fs,
+};
 
-/**
- * Data structure defining a team of students that communicate with Tablón and compete in its
- * leaderboards.
- *
- * Team IDs must be fomed by a team prefix and a number (e.g. g110).
- *
- * The team's identifier is temporarily set as its name.
- *
- * Confirmed teams are "definitive", and ready to be used to authenticate in Tablón (if a password
- * has been set).
- */
+/// Data structure defining a team of students that communicate with Tablón and compete in its
+/// leaderboards.
+///
+/// Team IDs must be fomed by a team prefix and a number (e.g. g110).
+///
+/// The team's identifier is temporarily set as its name.
+///
+/// Confirmed teams are "definitive", and ready to be used to authenticate in Tablón (if a password
+/// has been set).
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Serialize, Deserialize, Getters)]
 pub struct Team {
@@ -60,10 +57,8 @@ pub struct Team {
 }
 
 impl Team {
-    /**
-     * Constructor for a team given the identifier of the guild it belongs to, and the team's
-     * identifier.
-     */
+    /// Constructor for a team given the identifier of the guild it belongs to, and the team's
+    /// identifier.
     pub fn new(guild_id: GuildId, id: String) -> Team {
         // Get the password for the team, if in the guild's team info:
         let pass = match team::get_guild_team_info(&guild_id) {
@@ -90,12 +85,10 @@ impl Team {
         res
     }
 
-    /**
-     * Adds the given user to the team. If the team reaches its maximum capacity, it also confirms
-     * the team.
-     *
-     * Team capacity must have been set as an environmental variable beforehand.
-     */
+    /// Adds the given user to the team. If the team reaches its maximum capacity, it also confirms
+    /// the team.
+    ///
+    /// Team capacity must have been set as an environmental variable beforehand.
     pub fn add_member(&mut self, student: &mut Student) {
         if !self.members.insert(student.id().clone()) {
             return;
@@ -106,9 +99,7 @@ impl Team {
         self.save();
     }
 
-    /**
-     * Changes the team's name, for customization purposes.
-     */
+    /// Changes the team's name, for customization purposes.
     pub fn change_name(&mut self, name: String) {
         let mut name_map = utils::load_namemap(&self.guild);
 
@@ -123,9 +114,7 @@ impl Team {
         self.save();
     }
 
-    /**
-     * Sets the team's password.
-     */
+    /// Sets the team's password.
     pub fn set_password(&mut self, password: String) {
         self.pass = Some(password.clone());
 
@@ -144,9 +133,7 @@ impl Team {
         self.save();
     }
 
-    /**
-     * Removes the given user from the team.
-     */
+    /// Removes the given user from the team.
     pub fn remove_member(&mut self, student: &mut Student) {
         if !self.members.remove(student.id()) {
             return;
@@ -170,27 +157,21 @@ impl Team {
         }
     }
 
-    /**
-     * Confirms the team, making it immutable.
-     */
+    /// Confirms the team, making it immutable.
     pub fn confirm(&mut self) {
         self.confirmed = true;
 
         self.save();
     }
 
-    /**
-     * Unconfirms the team, making it mutable again.
-     */
+    /// Unconfirms the team, making it mutable again.
     pub fn unconfirm(&mut self) {
         self.confirmed = false;
 
         self.save();
     }
 
-    /**
-     * Deletes the team from the system.
-     */
+    /// Deletes the team from the system.
     pub fn delete(&self) {
         // Remove all members from the team, if any reamining:
         for member in self.members.iter() {
@@ -215,11 +196,9 @@ impl Team {
         );
     }
 
-    /**
-     * Saves the team's information to disk as a JSON file.
-     *
-     * Team files are saved as `<guild_id>/teams/<team_id>.json`.
-     */
+    /// Saves the team's information to disk as a JSON file.
+    ///
+    /// Team files are saved as `<guild_id>/teams/<team_id>.json`.
     pub fn save(&self) {
         let json = serde_json::to_string_pretty(self).expect(
             format!(
@@ -243,16 +222,12 @@ impl Team {
         );
     }
 
-    /**
-     * Loads a Team instance from a JSON string and returns it.
-     */
+    /// Loads a Team instance from a JSON string and returns it.
     pub fn from_json(json: &str) -> Team {
         serde_json::from_str(json).expect("[Team] Could not parse data as valid JSON.")
     }
 
-    /**
-     * Loads a Team instance saved as JSON from disk and returns it.
-     */
+    /// Loads a Team instance saved as JSON from disk and returns it.
     pub fn load(guild_id: &String, team_id: &String) -> Team {
         let json_str = fs::read_to_string(format!("guilds/{}/teams/{}.json", guild_id, team_id))
             .expect(
@@ -266,9 +241,7 @@ impl Team {
     }
 }
 
-/**
- * Data structure grouping some persistent per-guild information about teams.
- */
+/// Data structure grouping some persistent per-guild information about teams.
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Serialize, Deserialize, Getters)]
 pub struct GuildTeamInfo {
@@ -289,9 +262,7 @@ pub struct GuildTeamInfo {
 }
 
 impl GuildTeamInfo {
-    /**
-     * Constructor for a GuildTeamInfo object.
-     */
+    /// Constructor for a GuildTeamInfo object.
     pub fn new(guild_id: GuildId, prefix: String) -> GuildTeamInfo {
         let res = Self {
             guild_id,
@@ -306,19 +277,15 @@ impl GuildTeamInfo {
         res
     }
 
-    /**
-     * Updates the prefix for the guild's team's identifiers.
-     */
+    /// Updates the prefix for the guild's team's identifiers.
     pub fn update_prefix(&mut self, new_prefix: String) {
         self.prefix = new_prefix;
 
         self.save();
     }
 
-    /**
-     * Registers a new team creation in the guild, returning the identifier it should use, and
-     * incrementing the count if a new identifier is used.
-     */
+    /// Registers a new team creation in the guild, returning the identifier it should use, and
+    /// incrementing the count if a new identifier is used.
     pub fn register_new_team(&mut self) -> String {
         // Return a previously used identifier, if available:
         if !self.holes.is_empty() {
@@ -343,11 +310,9 @@ impl GuildTeamInfo {
         format!("{}{:02}", self.prefix, self.count)
     }
 
-    /**
-     * Registers a specific team creation in the guild, given its identifier.
-     * The team count is incremented accordingly.
-     * Panics if the identifier is already in use.
-     */
+    /// Registers a specific team creation in the guild, given its identifier.
+    /// The team count is incremented accordingly.
+    /// Panics if the identifier is already in use.
     pub fn register_specific_team(&mut self, team_id: &String) {
         // Extract the number from the identifier, to update the count if necessary:
         let team_num = team_id
@@ -385,29 +350,23 @@ impl GuildTeamInfo {
         self.save();
     }
 
-    /**
-     * Discards an identifier for a team that was registered but will not be used.
-     */
+    /// Discards an identifier for a team that was registered but will not be used.
     pub fn discard_team(&mut self, team_id: String) {
         self.holes.push(team_id);
 
         self.save();
     }
 
-    /**
-     * Sets the passwords for the guild's teams.
-     */
+    /// Sets the passwords for the guild's teams.
     pub fn update_passwords(&mut self, passwords: HashMap<String, String>) {
         self.passwords = passwords;
 
         self.save();
     }
 
-    /**
-     * Saves the guild's team information to disk as a JSON file.
-     *
-     * Team files are saved as `<guild_id>/teams/info.json`.
-     */
+    /// Saves the guild's team information to disk as a JSON file.
+    ///
+    /// Team files are saved as `<guild_id>/teams/info.json`.
     pub fn save(&self) {
         let json = serde_json::to_string_pretty(self).expect(
             format!(
@@ -427,16 +386,12 @@ impl GuildTeamInfo {
         );
     }
 
-    /**
-     * Loads a GuildTeamInfo instance from a JSON string and returns it.
-     */
+    /// Loads a GuildTeamInfo instance from a JSON string and returns it.
     pub fn from_json(json: &str) -> GuildTeamInfo {
         serde_json::from_str(json).expect("[GuildTeamInfo] Could not parse data as valid JSON.")
     }
 
-    /**
-     * Loads a GuildTeamInfo instance saved as JSON from disk and returns it.
-     */
+    /// Loads a GuildTeamInfo instance saved as JSON from disk and returns it.
     pub fn load(guild_id: &String) -> GuildTeamInfo {
         let json_str = fs::read_to_string(format!("guilds/{}/teams/info.json", guild_id)).expect(
             format!(
@@ -451,9 +406,7 @@ impl GuildTeamInfo {
 
 /* Static methods: */
 
-/*r
- * Retrieve a Team object given its guild and ID, if it exists.
- */
+/// Retrieve a Team object given its guild and ID, if it exists.
 pub fn get_team(guild_id: &GuildId, team_id: &String) -> Option<Team> {
     if let Ok(json) =
         fs::read_to_string(format!("guilds/{}/teams/{}.json", guild_id, team_id).as_str())
@@ -485,9 +438,7 @@ macro_rules! get_existing_team {
 }
 pub(crate) use get_existing_team;
 
-/**
- * Retrieve a Team object given its guild and ID, if it exists, or create it otherwise.
- */
+/// Retrieve a Team object given its guild and ID, if it exists, or create it otherwise.
 pub fn get_or_create_team(guild_id: &GuildId, team_id: &String) -> Team {
     if let Some(team) = get_team(guild_id, team_id) {
         team
@@ -496,9 +447,7 @@ pub fn get_or_create_team(guild_id: &GuildId, team_id: &String) -> Team {
     }
 }
 
-/**
- * Retrieve a GuildTeamInfo object given its guild, if it exists.
- */
+/// Retrieve a GuildTeamInfo object given its guild, if it exists.
 pub fn get_guild_team_info(guild_id: &GuildId) -> Option<GuildTeamInfo> {
     if let Ok(json) = fs::read_to_string(format!("guilds/{}/teams/info.json", guild_id).as_str()) {
         Some(
@@ -528,15 +477,13 @@ macro_rules! get_existing_guild_team_info {
 }
 pub(crate) use get_existing_guild_team_info;
 
-/**
- * Registers a new team creation in the given guild, returning the identifier it should use, and
- * incrementing the count.
- *
- * This is a convenience shortcut method that avoids having to retrieve the guild's team info
- * object.
- *
- * The guild's team info object must have been created beforehand.
- */
+/// Registers a new team creation in the given guild, returning the identifier it should use, and
+/// incrementing the count.
+///
+/// This is a convenience shortcut method that avoids having to retrieve the guild's team info
+/// object.
+///
+/// The guild's team info object must have been created beforehand.
 pub fn register_team(guild_id: &GuildId) -> String {
     get_existing_guild_team_info!(guild_id).register_new_team()
 }

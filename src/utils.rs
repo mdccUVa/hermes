@@ -17,15 +17,11 @@
  */
 use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, UserId};
-use std::collections::HashMap;
-use std::fs;
+use std::{collections::HashMap, fs};
 
 /* Data structures: */
 
-// Bot configuration struct:
-/**
- * Data structure encapsulating the per-guild configuration of the bot.
- */
+/// Data structure encapsulating the per-guild configuration of the bot.
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Deserialize, Serialize)]
 pub struct BotConfig {
@@ -57,9 +53,7 @@ pub struct BotConfig {
     pub column_separator: String,
 }
 
-/**
- * Macro for logging to stderr the usage of a command.
- */
+/// Macro for logging to stderr the usage of a command.
 macro_rules! elog_cmd {
     ($ctx:ident) => {
         eprintln!(
@@ -72,9 +66,7 @@ macro_rules! elog_cmd {
 }
 pub(crate) use elog_cmd;
 
-/**
- * Macro for retrieving the guild ID from a Context object.
- */
+/// Macro for retrieving the guild ID from a Context object.
 macro_rules! get_guild_id {
     ($ctx:ident) => {
         $ctx.guild_id()
@@ -83,9 +75,7 @@ macro_rules! get_guild_id {
 }
 pub(crate) use get_guild_id;
 
-/**
- * Macro for retrieving the student object from the author of a command.
- */
+/// Macro for retrieving the student object from the author of a command.
 macro_rules! get_triggering_student {
     ($ctx:ident) => {
         student::get_student(&$ctx.author().id)
@@ -94,10 +84,8 @@ macro_rules! get_triggering_student {
 }
 pub(crate) use get_triggering_student;
 
-/**
- * Loads the bot configuration for a guild from its persistent configuration file.
- * If the configuration file does not exist, it is created with default values.
- */
+/// Loads the bot configuration for a guild from its persistent configuration file.
+/// If the configuration file does not exist, it is created with default values.
 pub fn load_config(guild_id: &GuildId) -> BotConfig {
     let json = fs::read_to_string(format!("guilds/{}/config.json", guild_id))
         .expect(format!("Could not read guild {}'s configuration file.", guild_id).as_str());
@@ -110,9 +98,7 @@ pub fn load_config(guild_id: &GuildId) -> BotConfig {
     )
 }
 
-/**
- * Creates the directories and files expected for the bot to function properly.
- */
+/// Creates the directories and files expected for the bot to function properly.
 pub fn init_filesystem() {
     fs::create_dir_all("guilds").expect("Could not create guilds directory.");
     fs::create_dir_all("users").expect("Could not create users directory.");
@@ -130,11 +116,9 @@ pub fn init_filesystem() {
     }
 }
 
-/**
- * Updates the persistent configuration file for a guild.
- * It is assumed that the config file exists on disk, since it should have been loaded with
- * `load_config` beforehand.
- */
+/// Updates the persistent configuration file for a guild.
+/// It is assumed that the config file exists on disk, since it should have been loaded with
+/// `load_config` beforehand.
 pub fn update_config_persistence(config: &BotConfig, guild_id: &GuildId) {
     let json = serde_json::to_string_pretty(config).expect(
         format!(
@@ -147,47 +131,37 @@ pub fn update_config_persistence(config: &BotConfig, guild_id: &GuildId) {
         .expect(format!("Could not write guild {}'s configuration file.", guild_id).as_str());
 }
 
-/**
- * Loads the persistent guildMap.json file into a HashMap object.
- */
+/// Loads the persistent guildMap.json file into a HashMap object.
 pub fn load_guildmap() -> HashMap<String, GuildId> {
     let json =
         fs::read_to_string("guilds/guildMap.json").expect("Could not read guilds/guildMap.json");
     serde_json::from_str(&json).expect("Could not parse guilds/guildMap.json as valid JSON data.")
 }
 
-/**
- * Updates the persistent guildMap.json file, which maps Guild names into their IDs.
- */
+/// Updates the persistent guildMap.json file, which maps Guild names into their IDs.
 pub fn update_guildmap_persistence(guild_map: &HashMap<String, GuildId>) {
     let json = serde_json::to_string_pretty(guild_map)
         .expect("Could not serialize the guild map into JSON.");
     fs::write("guilds/guildMap.json", json).expect("Could not write guilds/guildMap.json.");
 }
 
-/**
- * Loads the persistent userMap.json file into a HashMap object.
- */
+/// Loads the persistent userMap.json file into a HashMap object.
 pub fn load_usermap() -> HashMap<String, UserId> {
     let json = fs::read_to_string("users/userMap.json").expect("Could not read users/userMap.json");
     serde_json::from_str(&json).expect("Could not parse users/userMap.json as valid JSON data.")
 }
 
-/**
- * Updates the persistent userMap.json file, which maps User names into their IDs.
- */
+/// Updates the persistent userMap.json file, which maps User names into their IDs.
 pub fn update_usermap_persistence(user_map: &HashMap<String, UserId>) {
     let json = serde_json::to_string_pretty(user_map)
         .expect("Could not serialize the user map into JSON.");
     fs::write("users/userMap.json", json).expect("Could not write users/userMap.json.");
 }
 
-/**
- * Load the name map for a specific guild.
- * If the file does not exist, it is created with an empty map.
- *
- * The name map maps the name of a team to its ID.
- */
+/// Load the name map for a specific guild.
+/// If the file does not exist, it is created with an empty map.
+///
+/// The name map maps the name of a team to its ID.
 pub fn load_namemap(guild_id: &GuildId) -> HashMap<String, String> {
     let json = fs::read_to_string(format!("guilds/{}/nameMap.json", guild_id).as_str())
         .expect(format!("Could not read name map for server {}.", guild_id).as_str());
@@ -200,10 +174,8 @@ pub fn load_namemap(guild_id: &GuildId) -> HashMap<String, String> {
     )
 }
 
-/**
- * Updates the persistent nameMap.json file for a specific guild, which maps team names into their
- * IDs.
- */
+/// Updates the persistent nameMap.json file for a specific guild, which maps team names into their
+/// IDs.
 pub fn update_namemap_persistence(name_map: &HashMap<String, String>, guild_id: &GuildId) {
     let json = serde_json::to_string_pretty(name_map).expect(
         format!(
@@ -216,13 +188,11 @@ pub fn update_namemap_persistence(name_map: &HashMap<String, String>, guild_id: 
         .expect(format!("Could not write guilds/{}/nameMap.json.", guild_id).as_str());
 }
 
-/**
- * Transform a guild's name into a custom safe guild name.
- *
- * This basically substitutes all spaces with underscores, and slashes with hyphens.
- *
- * This is done so a path containing the guild's name can be created without causing any issues.
- */
+/// Transform a guild's name into a custom safe guild name.
+///
+/// This basically substitutes all spaces with underscores, and slashes with hyphens.
+///
+/// This is done so a path containing the guild's name can be created without causing any issues.
 pub fn sanitize_name(name: &String) -> String {
     name.replace(" ", "_").replace("/", "-")
 }

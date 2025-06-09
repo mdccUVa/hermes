@@ -17,12 +17,12 @@
  */
 extern crate reqwest;
 
-use crate::team;
-use crate::utils;
-use crate::utils::get_guild_id;
-use crate::{Context, Error};
-use poise::serenity_prelude as serenity;
-use poise::serenity_prelude::GuildChannel;
+use crate::{
+    team, utils,
+    utils::get_guild_id,
+    {Context, Error},
+};
+use poise::{serenity_prelude as serenity, serenity_prelude::GuildChannel};
 use serde_json;
 use std::fs;
 

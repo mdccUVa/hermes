@@ -19,12 +19,10 @@ use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use serenity::all::UserId;
 
-/**
- * Data structure defining a team request.
- *
- * Team requests are sent by students to other students in the same server, to invite them to join
- * an already existing team.
- */
+/// Data structure defining a team request.
+///
+/// Team requests are sent by students to other students in the same server, to invite them to join
+/// an already existing team.
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Clone, Serialize, Deserialize, Getters, Setters)]
 pub struct TeamRequest {
@@ -34,9 +32,7 @@ pub struct TeamRequest {
     sender_id: UserId,
 }
 
-/**
- * Conversion from a (String, UserId)-tuple to a `TeamRequest` object.
- */
+/// Conversion from a (String, UserId)-tuple to a `TeamRequest` object.
 impl Into<TeamRequest> for (String, UserId) {
     fn into(self) -> TeamRequest {
         TeamRequest {
@@ -46,18 +42,14 @@ impl Into<TeamRequest> for (String, UserId) {
     }
 }
 
-/**
- * Conversion from a `TeamRequest` object to a (String, UserId)-tuple.
- */
+/// Conversion from a `TeamRequest` object to a (String, UserId)-tuple.
 impl Into<(String, UserId)> for TeamRequest {
     fn into(self) -> (String, UserId) {
         (self.team_id, self.sender_id)
     }
 }
 
-/**
- * Conversion from a `&TeamRequest` object to a (&String, &UserId)-tuple.
- */
+/// Conversion from a `&TeamRequest` object to a (&String, &UserId)-tuple.
 // Using from instead of into, just for fun.
 // (I'd hppe this implementation was automatically derived, but it does not seem to be the case.)
 impl<'a> From<&'a TeamRequest> for (&'a String, &'a UserId) {
@@ -66,11 +58,9 @@ impl<'a> From<&'a TeamRequest> for (&'a String, &'a UserId) {
     }
 }
 
-/**
- * Comparison of `TeamRequest` objects.
- *
- * Two `TeamRequest` objects are considered equal if they have the same `team_id`.
- */
+/// Comparison of `TeamRequest` objects.
+///
+/// Two `TeamRequest` objects are considered equal if they have the same `team_id`.
 // The way the bot is implemented right now, there cannot be two TeamRequests with the same team ID
 // and different sender.
 impl PartialEq for TeamRequest {

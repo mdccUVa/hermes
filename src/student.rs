@@ -15,18 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use crate::teamrequest::TeamRequest;
-use crate::Credentials;
+use crate::{teamrequest::TeamRequest, Credentials};
 use getset::{Getters, Setters};
 use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, UserId};
-use std::collections::HashMap;
-use std::fs;
-use std::path::Path;
+use std::{collections::HashMap, fs, path::Path};
 
-/**
- * Data structure defining a student and its preferences / configuration in the system.
- */
+/// Data structure defining a student and its preferences / configuration in the system.
 #[cfg_attr(debug_assertions, derive(Debug))]
 #[derive(Serialize, Deserialize, Getters, Setters)]
 pub struct Student {
@@ -43,11 +38,9 @@ pub struct Student {
 }
 
 impl Student {
-    /**
-     * Constructor for a student, given a server they are in.
-     *
-     * Every student must be in at least one server.
-     */
+    /// Constructor for a student, given a server they are in.
+    ///
+    /// Every student must be in at least one server.
     pub fn new(user_id: UserId, user_name: String) -> Student {
         let res: Student = Self {
             id: user_id,
@@ -130,9 +123,7 @@ impl Student {
 
     /* Other methods: */
 
-    /**
-     * Adds a team for one of the guilds this student is in.
-     */
+    /// Adds a team for one of the guilds this student is in.
     pub fn add_team(&mut self, guild_id: GuildId, team_id: String, team_password: Option<String>) {
         let cred = Credentials {
             team: team_id,
@@ -147,9 +138,7 @@ impl Student {
         self.save();
     }
 
-    /**
-     * Adds the password to the credentials of a guild the student is in.
-     */
+    /// Adds the password to the credentials of a guild the student is in.
     pub fn set_password(&mut self, guild_id: &GuildId, password: String) {
         assert!(self.credentials.contains_key(guild_id));
 
@@ -167,23 +156,19 @@ impl Student {
         self.save();
     }
 
-    /**
-     * Removes the team for one of the guilds the student is in, given the guild identifier.
-     *
-     * The removed team is probably not confirmed (definitive), so their members could join and
-     * leave at will.
-     */
+    /// Removes the team for one of the guilds the student is in, given the guild identifier.
+    ///
+    /// The removed team is probably not confirmed (definitive), so their members could join and
+    /// leave at will.
     pub fn remove_team(&mut self, guild_id: &GuildId) {
         self.credentials.remove(guild_id);
 
         self.save();
     }
 
-    /**
-     * Retrieves the team ID for a guild the student might be in.
-     *
-     * Returns `None` if the student does not have a team in the provided guild.
-     */
+    /// Retrieves the team ID for a guild the student might be in.
+    ///
+    /// Returns `None` if the student does not have a team in the provided guild.
     pub fn get_team_id(&self, guild_id: &GuildId) -> Option<String> {
         if let Some(credentials) = self.credentials.get(guild_id) {
             Some(credentials.team.clone())
@@ -192,9 +177,7 @@ impl Student {
         }
     }
 
-    /**
-     * Adds a new team request for the student.
-     */
+    /// Adds a new team request for the student.
     pub fn add_team_request(&mut self, guild_id: GuildId, team_id: String, sender_id: UserId) {
         let request = (team_id, sender_id).into();
 
@@ -207,27 +190,21 @@ impl Student {
         self.save();
     }
 
-    /**
-     * Sets the preferred queue of the student for a given guild.
-     */
+    /// Sets the preferred queue of the student for a given guild.
     pub fn set_preferred_queue(&mut self, guild_id: GuildId, queue_name: String) {
         self.preferred_queue.insert(guild_id, queue_name);
 
         self.save();
     }
 
-    /**
-     * Sets the last request command the student used in a guild.
-     */
+    /// Sets the last request command the student used in a guild.
     pub fn set_last_command(&mut self, guild_id: GuildId, command: String) {
         self.last_command.insert(guild_id, command);
 
         self.save();
     }
 
-    /**
-     * Adds a request to the student's request history.
-     */
+    /// Adds a request to the student's request history.
     pub fn add_request(&mut self, gid: &GuildId, request_id: u16) {
         if self.request_history.contains_key(gid) {
             self.request_history
@@ -247,11 +224,9 @@ impl Student {
         self.save();
     }
 
-    /**
-     * Saves the student's information to disk as a JSON file.
-     *
-     * Student files are saved as `users/<username>[#discriminator].json`, for readability reasons.
-     */
+    /// Saves the student's information to disk as a JSON file.
+    ///
+    /// Student files are saved as `users/<username>[#discriminator].json`, for readability reasons.
     pub fn save(&self) {
         let json = serde_json::to_string_pretty(self).expect(
             format!(
@@ -272,16 +247,12 @@ impl Student {
         );
     }
 
-    /**
-     * Loads a Student instance from a JSON string and returns it.
-     */
+    /// Loads a Student instance from a JSON string and returns it.
     pub fn from_json(json: &str) -> Student {
         serde_json::from_str(json).expect("[Student] Could not parse data as valid JSON.")
     }
 
-    /**
-     * Loads a Student instance saved as JSON from disk and returns it.
-     */
+    /// Loads a Student instance saved as JSON from disk and returns it.
     pub fn load(path: &Path) -> Student {
         let json_str = fs::read_to_string(path)
             .expect(format!("[Student] Could not load file {}.", path.display()).as_str());
@@ -289,9 +260,7 @@ impl Student {
     }
 }
 
-/**
- * Retrieves a Student object given its Discord ID, if it exists in the system.
- */
+/// Retrieves a Student object given its Discord ID, if it exists in the system.
 pub fn get_student(id: &UserId) -> Option<Student> {
     if let Ok(json) = fs::read_to_string(format!("users/{}.json", id).as_str()) {
         Some(
@@ -316,9 +285,7 @@ macro_rules! get_existing_student {
 }
 pub(crate) use get_existing_student;
 
-/**
- * Retrieves a Student object from a generic object that contains is Discord ID.
- */
+/// Retrieves a Student object from a generic object that contains is Discord ID.
 // TODO: Move to utils?
 macro_rules! get_student_from_user {
     ($user:ident) => {
