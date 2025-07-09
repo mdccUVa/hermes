@@ -10,6 +10,9 @@ repository = "https://github.com/mdccUVa/hermes"
 [lib]
 proc-macro = true
 
+[profile.release]
+lto = "thin"
+
 [dependencies]
 darling = "0.20.10"
 getset = "0.1.2"
