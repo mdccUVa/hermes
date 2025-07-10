@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::{student, student::Student, team, utils};
-use getset::Getters;
+use getset::{CopyGetters, Getters};
 use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, UserId};
 use std::{
@@ -34,7 +34,7 @@ use std::{
 /// Confirmed teams are "definitive", and ready to be used to authenticate in Tablón (if a password
 /// has been set).
 #[cfg_attr(debug_assertions, derive(Debug))]
-#[derive(Serialize, Deserialize, Getters)]
+#[derive(Serialize, Deserialize, Getters, CopyGetters)]
 pub struct Team {
     /// Team identifier (immutable).
     #[getset(get = "pub")]
@@ -52,7 +52,7 @@ pub struct Team {
     #[getset(get = "pub")]
     members: HashSet<UserId>,
     /// Status of the formation of the team.
-    #[getset(get = "pub")]
+    #[getset(get_copy = "pub")]
     confirmed: bool,
 }
 
@@ -135,7 +135,7 @@ impl Team {
 
     /// Removes the given user from the team.
     pub fn remove_member(&mut self, student: &mut Student) {
-        if !self.members.remove(student.id()) {
+        if !self.members.remove(&student.id()) {
             return;
         }
 
@@ -243,7 +243,7 @@ impl Team {
 
 /// Data structure grouping some persistent per-guild information about teams.
 #[cfg_attr(debug_assertions, derive(Debug))]
-#[derive(Serialize, Deserialize, Getters)]
+#[derive(Serialize, Deserialize, Getters, CopyGetters)]
 pub struct GuildTeamInfo {
     /// Identifier for the guild corresponding to this information, for convenience reasons.
     guild_id: GuildId,
@@ -252,7 +252,7 @@ pub struct GuildTeamInfo {
     // BotConfig.
     prefix: String,
     /// Number of teams created in the guild.
-    #[getset(get = "pub")]
+    #[getset(get_copy = "pub")]
     count: u16,
     /// Passwords for each team, already created or future.
     passwords: HashMap<String, String>,

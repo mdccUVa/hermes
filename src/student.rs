@@ -16,18 +16,18 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 use crate::{teamrequest::TeamRequest, Credentials};
-use getset::{Getters, Setters};
+use getset::{CopyGetters, Getters};
 use serde::{Deserialize, Serialize};
 use serenity::all::{GuildId, UserId};
 use std::{collections::HashMap, fs, path::Path};
 
 /// Data structure defining a student and its preferences / configuration in the system.
 #[cfg_attr(debug_assertions, derive(Debug))]
-#[derive(Serialize, Deserialize, Getters, Setters)]
+#[derive(Serialize, Deserialize, Getters, CopyGetters)]
 pub struct Student {
-    #[getset(get = "pub")]
+    #[getset(get_copy = "pub")]
     id: UserId,
-    #[getset(get = "pub", set = "pub")]
+    #[getset(get = "pub")]
     name: String,
     credentials: HashMap<GuildId, Credentials>,
     preferred_queue: HashMap<GuildId, String>,

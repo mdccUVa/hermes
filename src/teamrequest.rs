@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-use getset::{Getters, Setters};
+use getset::{CopyGetters, Getters};
 use serde::{Deserialize, Serialize};
 use serenity::all::UserId;
 
@@ -24,11 +24,11 @@ use serenity::all::UserId;
 /// Team requests are sent by students to other students in the same server, to invite them to join
 /// an already existing team.
 #[cfg_attr(debug_assertions, derive(Debug))]
-#[derive(Clone, Serialize, Deserialize, Getters, Setters)]
+#[derive(Clone, Serialize, Deserialize, Getters, CopyGetters)]
 pub struct TeamRequest {
     #[getset(get = "pub")]
     team_id: String,
-    #[getset(get = "pub")]
+    #[getset(get_copy = "pub")]
     sender_id: UserId,
 }
 

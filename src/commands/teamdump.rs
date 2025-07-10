@@ -45,7 +45,7 @@ pub async fn teamdump(
     let config = utils::load_config(&gid);
 
     let prefix = config.team_prefix;
-    let team_count = *team::get_existing_guild_team_info!(&gid).count();
+    let team_count = team::get_existing_guild_team_info!(&gid).count();
 
     // Construct message and file content:
     let mut out_file = String::new();

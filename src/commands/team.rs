@@ -18,8 +18,7 @@
 use crate::{
     student, team,
     team::Team,
-    utils,
-    utils::{get_guild_id, get_triggering_student},
+    utils::{self, get_guild_id, get_triggering_student},
     Context, Error,
 };
 use poise::serenity_prelude::User;
@@ -58,7 +57,7 @@ pub async fn create(
     let mut student = get_triggering_student!(ctx);
 
     // Get if the user is already in a team:
-    if let Some(_) = student.get_team_id(&gid) {
+    if student.get_team_id(&gid).is_some() {
         ctx.reply("You are already in a team in this server.")
             .await
             .expect(
@@ -95,7 +94,7 @@ pub async fn create(
     // Collect the students that can be invited:
     let mut students_to_invite = Vec::with_capacity(others.len());
     for other in others {
-        if other.id == *student.id() {
+        if other.id == student.id() {
             ctx.reply("You cannot invite yourself to your own team.")
                 .await
                 .expect(
@@ -113,7 +112,7 @@ pub async fn create(
         let other_student = student::get_existing_student!(&other.id);
 
         // Check if the student is already in a team:
-        if let Some(_) = other_student.get_team_id(&gid) {
+        if other_student.get_team_id(&gid).is_some() {
             ctx.reply(format!(
                 "<@{}> is already in a team in this server.",
                 other.id
@@ -247,7 +246,7 @@ pub async fn join(
     let mut student = get_triggering_student!(ctx);
 
     // Check if the student is already in a team:
-    if let Some(_) = student.get_team_id(&gid) {
+    if student.get_team_id(&gid).is_some() {
         ctx.reply("You are already in a team in this server.")
             .await
             .expect(
@@ -348,7 +347,7 @@ pub async fn leave(ctx: Context<'_>) -> Result<(), Error> {
     let mut team = team::get_existing_team!(&gid, &team_id);
 
     // Check the team is not confirmed:
-    if *team.confirmed() {
+    if team.confirmed() {
         ctx.reply("You can no longer leave your team, as it is definitive.")
             .await
             .expect(
@@ -470,7 +469,7 @@ pub async fn invite(
     let team = team::get_existing_team!(&gid, &team_id);
 
     // Check the team is not confirmed:
-    if *team.confirmed() {
+    if team.confirmed() {
         ctx.reply("You can no longer invite other students to your team, as it is definitive.")
             .await
             .expect(
@@ -508,7 +507,7 @@ pub async fn invite(
     // Collect the students that can be invited:
     let mut students_to_invite = Vec::with_capacity(others.len());
     for other in others {
-        if other.id == *student.id() {
+        if other.id == student.id() {
             ctx.reply("You cannot invite yourself to your own team.")
                 .await
                 .expect(
@@ -526,7 +525,7 @@ pub async fn invite(
         let other_student = student::get_existing_student!(&other.id);
 
         // Check if the student is already in a team:
-        if let Some(_) = other_student.get_team_id(&gid) {
+        if other_student.get_team_id(&gid).is_some() {
             ctx.reply(format!(
                 "<@{}> is already in a team in this server.",
                 other.id

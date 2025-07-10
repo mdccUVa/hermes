@@ -15,21 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 /*
  * We have to make the project a library to define a new procedural macro for some reason (seems to
  * be related with how Rust compilation works).
  */
-extern crate proc_macro;
-use proc_macro::TokenStream;
-use quote::quote;
-use quote::ToTokens as _; // To use function.into_token_stream().
-use syn::spanned::Spanned as _; // To use span() on language items.
-use syn::{parse_macro_input, ItemFn};
 
-/*
- * Reference:
- * https://users.rust-lang.org/t/using-macros-to-modify-ast-to-modify-and-add-line-of-codes-in-function/56805/5
- */
+use proc_macro::TokenStream;
+use quote::{quote, ToTokens as _}; // ToTokens is to use function.into_token_stream().
+use syn::{parse_macro_input, spanned::Spanned as _, ItemFn}; // Spanned is to use .span() on language items.
+
+// Reference:
+// https://users.rust-lang.org/t/using-macros-to-modify-ast-to-modify-and-add-line-of-codes-in-function/56805/5
 #[proc_macro_attribute]
 pub fn log_cmd(_macro_attrs: TokenStream, function: TokenStream) -> TokenStream {
     // Parse the function's tokens using syn:
