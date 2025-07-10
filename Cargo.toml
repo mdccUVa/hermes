@@ -14,14 +14,14 @@ proc-macro = true
 lto = "thin"
 
 [dependencies]
-darling = "0.20.10"
-getset = "0.1.2"
+darling = "0.20.11"
+getset = "0.1.6"
 poise = { version = "0.6.1", features = ["cache"] }
-quote = "1.0.38"
+quote = "1.0.40"
 regex = "1.11.1"
-reqwest = { version = "0.12.12", features = ["blocking"] }
+reqwest = { version = "0.12.22", features = ["blocking"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-serenity = "0.12.2"
-syn = { version="2.0.94", features = ["full"] }
-tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] } # Required by serenity.
+serenity = "0.12.4"
+syn = { version = "2.0.104", features = ["full"] }
+tokio = { version = "1.46.1", features = ["macros", "rt-multi-thread"] } # Required by serenity.
